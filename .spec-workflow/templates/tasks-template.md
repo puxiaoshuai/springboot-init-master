@@ -114,7 +114,7 @@
   - Connect to API endpoints
   - _Leverage: src/hooks/useApi.ts, src/components/BaseComponent.tsx_
   - _Requirements: 5.2, 5.3_
-  - _Prompt: Role: React Developer with expertise in state management and API integration | Task: Implement feature-specific components following requirements 5.2 and 5.3, using API hooks from src/hooks/useApi.ts and extending BaseComponent patterns | Restrictions: Must use existing state management patterns, handle loading and error states properly, maintain component performance | Success: Components are fully functional with proper state management, API integration works smoothly, user experience is responsive and intuitive_
+  - _Prompt: Role: React Developer with expertise in state management and API integration | Task: Implement feature-specific components following requirements 5.2 and 5.3, using API hooks from src/hooks/useApi.ts and extending BaseComponent patterns | Restrictions: Must use existing state management patterns, handle loading and error states properly, maintain component performance | Success: Components are fully functional with proper state management, API integration works smoothly, userPo experience is responsive and intuitive_
 
 - [ ] 6. Integration and testing
   - Plan integration approach
@@ -124,11 +124,11 @@
 
 - [ ] 6.1 Write end-to-end tests
   - Set up E2E testing framework
-  - Write user journey tests
+  - Write userPo journey tests
   - Add test automation
   - _Leverage: tests/helpers/testUtils.ts, tests/fixtures/data.ts_
   - _Requirements: All_
-  - _Prompt: Role: QA Automation Engineer with expertise in E2E testing and test frameworks like Cypress or Playwright | Task: Implement comprehensive end-to-end tests covering all requirements, setting up testing framework and user journey tests using test utilities and fixtures | Restrictions: Must test real user workflows, ensure tests are maintainable and reliable, do not test implementation details | Success: E2E tests cover all critical user journeys, tests run reliably in CI/CD pipeline, user experience is validated from end-to-end_
+  - _Prompt: Role: QA Automation Engineer with expertise in E2E testing and test frameworks like Cypress or Playwright | Task: Implement comprehensive end-to-end tests covering all requirements, setting up testing framework and userPo journey tests using test utilities and fixtures | Restrictions: Must test real userPo workflows, ensure tests are maintainable and reliable, do not test implementation details | Success: E2E tests cover all critical userPo journeys, tests run reliably in CI/CD pipeline, userPo experience is validated from end-to-end_
 
 - [ ] 6.2 Final integration and cleanup
   - Integrate all components

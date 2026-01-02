@@ -60,8 +60,8 @@ public class ${upperDataKey}Controller {
         // 数据校验
         ${dataKey}Service.valid${upperDataKey}(${dataKey}, true);
         // todo 填充默认值
-        User loginUser = userService.getLoginUser(request);
-        ${dataKey}.setUserId(loginUser.getId());
+        User loginUserPo = userService.getLoginUser(request);
+        ${dataKey}.setUserId(loginUserPo.getId());
         // 写入数据库
         boolean result = ${dataKey}Service.save(${dataKey});
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -82,13 +82,13 @@ public class ${upperDataKey}Controller {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = userService.getLoginUser(request);
+        User userPo = userService.getLoginUser(request);
         long id = deleteRequest.getId();
         // 判断是否存在
         ${upperDataKey} old${upperDataKey} = ${dataKey}Service.getById(id);
         ThrowUtils.throwIf(old${upperDataKey} == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可删除
-        if (!old${upperDataKey}.getUserId().equals(user.getId()) && !userService.isAdmin(request)) {
+        if (!old${upperDataKey}.getUserId().equals(userPo.getId()) && !userService.isAdmin(request)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         // 操作数据库
@@ -190,8 +190,8 @@ public class ${upperDataKey}Controller {
                                                                  HttpServletRequest request) {
         ThrowUtils.throwIf(${dataKey}QueryRequest == null, ErrorCode.PARAMS_ERROR);
         // 补充查询条件，只查询当前登录用户的数据
-        User loginUser = userService.getLoginUser(request);
-        ${dataKey}QueryRequest.setUserId(loginUser.getId());
+        User loginUserPo = userService.getLoginUser(request);
+        ${dataKey}QueryRequest.setUserId(loginUserPo.getId());
         long current = ${dataKey}QueryRequest.getCurrent();
         long size = ${dataKey}QueryRequest.getPageSize();
         // 限制爬虫
@@ -220,13 +220,13 @@ public class ${upperDataKey}Controller {
         BeanUtils.copyProperties(${dataKey}EditRequest, ${dataKey});
         // 数据校验
         ${dataKey}Service.valid${upperDataKey}(${dataKey}, false);
-        User loginUser = userService.getLoginUser(request);
+        User loginUserPo = userService.getLoginUser(request);
         // 判断是否存在
         long id = ${dataKey}EditRequest.getId();
         ${upperDataKey} old${upperDataKey} = ${dataKey}Service.getById(id);
         ThrowUtils.throwIf(old${upperDataKey} == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可编辑
-        if (!old${upperDataKey}.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+        if (!old${upperDataKey}.getUserId().equals(loginUserPo.getId()) && !userService.isAdmin(loginUserPo)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         // 操作数据库

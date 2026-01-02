@@ -1,26 +1,176 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ph.springbootinit.mapper.UserMapper">
-    <resultMap id="BaseResultMap" type="com.ph.springbootinit.model.entity.User">
-        <id property="id" column="id" jdbcType="BIGINT"/>
-        <result property="unionId" column="unionId" jdbcType="VARCHAR"/>
-        <result property="mpOpenId" column="mpOpenId" jdbcType="VARCHAR"/>
-        <result property="userName" column="userName" jdbcType="VARCHAR"/>
-        <result property="userAvatar" column="userAvatar" jdbcType="VARCHAR"/>
-        <result property="userProfile" column="userProfile" jdbcType="VARCHAR"/>
-        <result property="userRole" column="userRole" jdbcType="VARCHAR"/>
-        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
-        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
-        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+
+    <resultMap id="BaseResultMap" type="com.ph.springbootinit.model.entity.UserPo">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="userAccount" property="userAccount" jdbcType="VARCHAR"/>
+        <result column="userPassword" property="userPassword" jdbcType="VARCHAR"/>
+        <result column="unionId" property="unionId" jdbcType="VARCHAR"/>
+        <result column="mpOpenId" property="mpOpenId" jdbcType="VARCHAR"/>
+        <result column="userName" property="userName" jdbcType="VARCHAR"/>
+        <result column="userAvatar" property="userAvatar" jdbcType="VARCHAR"/>
+        <result column="userProfile" property="userProfile" jdbcType="VARCHAR"/>
+        <result column="userRole" property="userRole" jdbcType="VARCHAR"/>
+        <result column="createTime" property="createTime" jdbcType="BIGINT"/>
+        <result column="updateTime" property="updateTime" jdbcType="BIGINT"/>
+        <result column="isDelete" property="isDelete" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,unionId,mpOpenId,
-        userName,userAvatar,userProfile,
-        userRole,createTime,updateTime,isDelete
+        id, userAccount, userPassword, unionId, mpOpenId, userName, userAvatar,
+        userProfile, userRole, createTime, updateTime, isDelete
     </sql>
+
+    <!-- 定义表名 -->
+    <sql id="table_name">user</sql>
+
+    <!-- 插入用户 -->
+    <insert id="insert" parameterType="com.ph.springbootinit.model.entity.UserPo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO <include refid="table_name"/> (
+            userAccount, userPassword, unionId, mpOpenId, userName,
+            userAvatar, userProfile, userRole, createTime, updateTime, isDelete
+        ) VALUES (
+            #{userAccount}, #{userPassword}, #{unionId}, #{mpOpenId}, #{userName},
+            #{userAvatar}, #{userProfile}, #{userRole}, #{createTime}, #{updateTime}, #{isDelete}
+        )
+    </insert>
+
+    <!-- 根据ID查询用户 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM <include refid="table_name"/>
+        WHERE id = #{id} AND isDelete = 0
+    </select>
+
+    <!-- 根据条件查询单个用户 -->
+    <select id="selectOne" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM <include refid="table_name"/>
+        <where>
+            isDelete = 0
+            <if test="userAccount != null and userAccount != ''">
+                AND userAccount = #{userAccount}
+            </if>
+            <if test="userPassword != null and userPassword != ''">
+                AND userPassword = #{userPassword}
+            </if>
+            <if test="unionId != null and unionId != ''">
+                AND unionId = #{unionId}
+            </if>
+            <if test="mpOpenId != null and mpOpenId != ''">
+                AND mpOpenId = #{mpOpenId}
+            </if>
+            <if test="userName != null and userName != ''">
+                AND userName = #{userName}
+            </if>
+            <if test="userRole != null and userRole != ''">
+                AND userRole = #{userRole}
+            </if>
+        </where>
+        LIMIT 1
+    </select>
+
+    <!-- 根据条件查询用户数量 -->
+    <select id="selectCount" resultType="int">
+        SELECT COUNT(*)
+        FROM <include refid="table_name"/>
+        <where>
+            isDelete = 0
+            <if test="userAccount != null and userAccount != ''">
+                AND userAccount = #{userAccount}
+            </if>
+            <if test="unionId != null and unionId != ''">
+                AND unionId = #{unionId}
+            </if>
+            <if test="mpOpenId != null and mpOpenId != ''">
+                AND mpOpenId = #{mpOpenId}
+            </if>
+            <if test="userName != null and userName != ''">
+                AND userName LIKE CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="userProfile != null and userProfile != ''">
+                AND userProfile LIKE CONCAT('%', #{userProfile}, '%')
+            </if>
+            <if test="userRole != null and userRole != ''">
+                AND userRole = #{userRole}
+            </if>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据ID更新用户 -->
+    <update id="updateById" parameterType="com.ph.springbootinit.model.entity.UserPo">
+        UPDATE <include refid="table_name"/>
+        <set>
+            <if test="userAccount != null and userAccount != ''">
+                userAccount = #{userAccount},
+            </if>
+            <if test="userPassword != null and userPassword != ''">
+                userPassword = #{userPassword},
+            </if>
+            <if test="unionId != null">
+                unionId = #{unionId},
+            </if>
+            <if test="mpOpenId != null">
+                mpOpenId = #{mpOpenId},
+            </if>
+            <if test="userName != null">
+                userName = #{userName},
+            </if>
+            <if test="userAvatar != null">
+                userAvatar = #{userAvatar},
+            </if>
+            <if test="userProfile != null">
+                userProfile = #{userProfile},
+            </if>
+            <if test="userRole != null and userRole != ''">
+                userRole = #{userRole},
+            </if>
+            <if test="updateTime != null">
+                updateTime = #{updateTime},
+            </if>
+        </set>
+        WHERE id = #{id} AND isDelete = 0
+    </update>
+
+    <!-- 根据条件查询用户列表 -->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM <include refid="table_name"/>
+        <where>
+            isDelete = 0
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="userAccount != null and userAccount != ''">
+                AND userAccount = #{userAccount}
+            </if>
+            <if test="unionId != null and unionId != ''">
+                AND unionId = #{unionId}
+            </if>
+            <if test="mpOpenId != null and mpOpenId != ''">
+                AND mpOpenId = #{mpOpenId}
+            </if>
+            <if test="userName != null and userName != ''">
+                AND userName LIKE CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="userProfile != null and userProfile != ''">
+                AND userProfile LIKE CONCAT('%', #{userProfile}, '%')
+            </if>
+            <if test="userRole != null and userRole != ''">
+                AND userRole = #{userRole}
+            </if>
+        </where>
+    </select>
+
+    <!-- 逻辑删除用户 -->
+    <update id="deleteById">
+        UPDATE <include refid="table_name"/>
+        SET isDelete = 1
+        WHERE id = #{id}
+    </update>
+
 </mapper>

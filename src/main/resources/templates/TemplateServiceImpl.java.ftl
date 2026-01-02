@@ -131,26 +131,26 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
         // region 可选
         // 1. 关联查询用户信息
         Long userId = ${dataKey}.getUserId();
-        User user = null;
+        User userPo = null;
         if (userId != null && userId > 0) {
-            user = userService.getById(userId);
+            userPo = userService.getById(userId);
         }
-        UserVO userVO = userService.getUserVO(user);
+        UserVO userVO = userService.getUserVO(userPo);
         ${dataKey}VO.setUser(userVO);
         // 2. 已登录，获取用户点赞、收藏状态
         long ${dataKey}Id = ${dataKey}.getId();
-        User loginUser = userService.getLoginUserPermitNull(request);
-        if (loginUser != null) {
+        User loginUserPo = userService.getLoginUserPermitNull(request);
+        if (loginUserPo != null) {
             // 获取点赞
             QueryWrapper<${upperDataKey}Thumb> ${dataKey}ThumbQueryWrapper = new QueryWrapper<>();
             ${dataKey}ThumbQueryWrapper.in("${dataKey}Id", ${dataKey}Id);
-            ${dataKey}ThumbQueryWrapper.eq("userId", loginUser.getId());
+            ${dataKey}ThumbQueryWrapper.eq("userId", loginUserPo.getId());
             ${upperDataKey}Thumb ${dataKey}Thumb = ${dataKey}ThumbMapper.selectOne(${dataKey}ThumbQueryWrapper);
             ${dataKey}VO.setHasThumb(${dataKey}Thumb != null);
             // 获取收藏
             QueryWrapper<${upperDataKey}Favour> ${dataKey}FavourQueryWrapper = new QueryWrapper<>();
             ${dataKey}FavourQueryWrapper.in("${dataKey}Id", ${dataKey}Id);
-            ${dataKey}FavourQueryWrapper.eq("userId", loginUser.getId());
+            ${dataKey}FavourQueryWrapper.eq("userId", loginUserPo.getId());
             ${upperDataKey}Favour ${dataKey}Favour = ${dataKey}FavourMapper.selectOne(${dataKey}FavourQueryWrapper);
             ${dataKey}VO.setHasFavour(${dataKey}Favour != null);
         }
@@ -187,31 +187,31 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
         // 2. 已登录，获取用户点赞、收藏状态
         Map<Long, Boolean> ${dataKey}IdHasThumbMap = new HashMap<>();
         Map<Long, Boolean> ${dataKey}IdHasFavourMap = new HashMap<>();
-        User loginUser = userService.getLoginUserPermitNull(request);
-        if (loginUser != null) {
+        User loginUserPo = userService.getLoginUserPermitNull(request);
+        if (loginUserPo != null) {
             Set<Long> ${dataKey}IdSet = ${dataKey}List.stream().map(${upperDataKey}::getId).collect(Collectors.toSet());
-            loginUser = userService.getLoginUser(request);
+            loginUserPo = userService.getLoginUser(request);
             // 获取点赞
             QueryWrapper<${upperDataKey}Thumb> ${dataKey}ThumbQueryWrapper = new QueryWrapper<>();
             ${dataKey}ThumbQueryWrapper.in("${dataKey}Id", ${dataKey}IdSet);
-            ${dataKey}ThumbQueryWrapper.eq("userId", loginUser.getId());
+            ${dataKey}ThumbQueryWrapper.eq("userId", loginUserPo.getId());
             List<${upperDataKey}Thumb> ${dataKey}${upperDataKey}ThumbList = ${dataKey}ThumbMapper.selectList(${dataKey}ThumbQueryWrapper);
             ${dataKey}${upperDataKey}ThumbList.forEach(${dataKey}${upperDataKey}Thumb -> ${dataKey}IdHasThumbMap.put(${dataKey}${upperDataKey}Thumb.get${upperDataKey}Id(), true));
             // 获取收藏
             QueryWrapper<${upperDataKey}Favour> ${dataKey}FavourQueryWrapper = new QueryWrapper<>();
             ${dataKey}FavourQueryWrapper.in("${dataKey}Id", ${dataKey}IdSet);
-            ${dataKey}FavourQueryWrapper.eq("userId", loginUser.getId());
+            ${dataKey}FavourQueryWrapper.eq("userId", loginUserPo.getId());
             List<${upperDataKey}Favour> ${dataKey}FavourList = ${dataKey}FavourMapper.selectList(${dataKey}FavourQueryWrapper);
             ${dataKey}FavourList.forEach(${dataKey}Favour -> ${dataKey}IdHasFavourMap.put(${dataKey}Favour.get${upperDataKey}Id(), true));
         }
         // 填充信息
         ${dataKey}VOList.forEach(${dataKey}VO -> {
             Long userId = ${dataKey}VO.getUserId();
-            User user = null;
+            User userPo = null;
             if (userIdUserListMap.containsKey(userId)) {
-                user = userIdUserListMap.get(userId).get(0);
+                userPo = userIdUserListMap.get(userId).get(0);
             }
-            ${dataKey}VO.setUser(userService.getUserVO(user));
+            ${dataKey}VO.setUser(userService.getUserVO(userPo));
             ${dataKey}VO.setHasThumb(${dataKey}IdHasThumbMap.getOrDefault(${dataKey}VO.getId(), false));
             ${dataKey}VO.setHasFavour(${dataKey}IdHasFavourMap.getOrDefault(${dataKey}VO.getId(), false));
         });

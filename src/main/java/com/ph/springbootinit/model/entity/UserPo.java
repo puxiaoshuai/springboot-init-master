@@ -1,28 +1,21 @@
 package com.ph.springbootinit.model.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
 /**
  * 用户
  *
-
-
  */
-@TableName(value = "user")
 @Data
-public class User implements Serializable {
+
+public class UserPo implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * id
      */
-    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
@@ -66,21 +59,17 @@ public class User implements Serializable {
     private String userRole;
 
     /**
-     * 创建时间
+     * 创建时间（时间戳）
      */
-    private Date createTime;
+    private Long createTime;
 
     /**
-     * 更新时间
+     * 更新时间（时间戳）
      */
-    private Date updateTime;
+    private Long updateTime;
 
     /**
      * 是否删除
      */
-    @TableLogic
     private Integer isDelete;
-
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
 }

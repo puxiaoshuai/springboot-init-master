@@ -1,11 +1,10 @@
 package com.ph.springbootinit.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.ph.springbootinit.model.dto.user.UserQueryRequest;
-import com.ph.springbootinit.model.entity.User;
+import com.ph.springbootinit.model.ao.user.UserQueryAO;
+import com.ph.springbootinit.model.entity.UserPo;
 import com.ph.springbootinit.model.vo.LoginUserVO;
 import com.ph.springbootinit.model.vo.UserVO;
+
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
@@ -13,10 +12,8 @@ import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 /**
  * 用户服务
  *
-
-
  */
-public interface UserService extends IService<User> {
+public interface UserService {
 
     /**
      * 用户注册
@@ -53,7 +50,7 @@ public interface UserService extends IService<User> {
      * @param request
      * @return
      */
-    User getLoginUser(HttpServletRequest request);
+    UserPo getLoginUser(HttpServletRequest request);
 
     /**
      * 获取当前登录用户（允许未登录）
@@ -61,7 +58,7 @@ public interface UserService extends IService<User> {
      * @param request
      * @return
      */
-    User getLoginUserPermitNull(HttpServletRequest request);
+    UserPo getLoginUserPermitNull(HttpServletRequest request);
 
     /**
      * 是否为管理员
@@ -74,10 +71,10 @@ public interface UserService extends IService<User> {
     /**
      * 是否为管理员
      *
-     * @param user
+     * @param userPo
      * @return
      */
-    boolean isAdmin(User user);
+    boolean isAdmin(UserPo userPo);
 
     /**
      * 用户注销
@@ -92,30 +89,69 @@ public interface UserService extends IService<User> {
      *
      * @return
      */
-    LoginUserVO getLoginUserVO(User user);
+    LoginUserVO getLoginUserVO(UserPo userPo);
 
     /**
      * 获取脱敏的用户信息
      *
-     * @param user
+     * @param userPo
      * @return
      */
-    UserVO getUserVO(User user);
+    UserVO getUserVO(UserPo userPo);
 
     /**
      * 获取脱敏的用户信息
      *
-     * @param userList
+     * @param userPoList
      * @return
      */
-    List<UserVO> getUserVO(List<User> userList);
+    List<UserVO> getUserVO(List<UserPo> userPoList);
 
     /**
-     * 获取查询条件
+     * 根据ID获取用户
      *
-     * @param userQueryRequest
-     * @return
+     * @param id 用户ID
+     * @return 用户信息
      */
-    QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
+    UserPo getById(Long id);
 
+    /**
+     * 根据查询条件获取用户列表
+     *
+     * @param userQueryAO 查询条件
+     * @return 用户列表
+     */
+    List<UserPo> list(UserQueryAO userQueryAO);
+
+    /**
+     * 统计用户数量
+     *
+     * @param userQueryAO 查询条件
+     * @return 用户数量
+     */
+    long count(UserQueryAO userQueryAO);
+
+    /**
+     * 更新用户
+     *
+     * @param userPo 用户信息
+     * @return 是否成功
+     */
+    boolean updateById(UserPo userPo);
+
+    /**
+     * 保存用户
+     *
+     * @param userPo 用户信息
+     * @return 是否成功
+     */
+    boolean save(UserPo userPo);
+
+    /**
+     * 根据ID删除用户
+     *
+     * @param id 用户ID
+     * @return 是否成功
+     */
+    boolean removeById(Long id);
 }

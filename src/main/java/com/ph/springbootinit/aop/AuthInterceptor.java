@@ -3,7 +3,7 @@ package com.ph.springbootinit.aop;
 import com.ph.springbootinit.annotation.AuthCheck;
 import com.ph.springbootinit.common.ErrorCode;
 import com.ph.springbootinit.exception.BusinessException;
-import com.ph.springbootinit.model.entity.User;
+import com.ph.springbootinit.model.entity.UserPo;
 import com.ph.springbootinit.model.enums.UserRoleEnum;
 import com.ph.springbootinit.service.UserService;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -43,14 +43,14 @@ public class AuthInterceptor {
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
         // 当前登录用户
-        User loginUser = userService.getLoginUser(request);
+        UserPo loginUserPo = userService.getLoginUser(request);
         UserRoleEnum mustRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
         // 不需要权限，放行
         if (mustRoleEnum == null) {
             return joinPoint.proceed();
         }
         // 必须有该权限才通过
-        UserRoleEnum userRoleEnum = UserRoleEnum.getEnumByValue(loginUser.getUserRole());
+        UserRoleEnum userRoleEnum = UserRoleEnum.getEnumByValue(loginUserPo.getUserRole());
         if (userRoleEnum == null) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }

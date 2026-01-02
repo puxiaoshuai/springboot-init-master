@@ -13,7 +13,7 @@ This directory allows you to create custom templates that override the default S
    - `structure-template.md` - Override structure steering template
 
 2. **Template Loading Priority**:
-   - The system first checks this `user-templates/` directory
+   - The system first checks this `userPo-templates/` directory
    - If a matching template is found here, it will be used
    - Otherwise, the default template from `templates/` will be used
 

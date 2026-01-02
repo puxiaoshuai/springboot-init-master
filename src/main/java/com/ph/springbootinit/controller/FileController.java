@@ -7,8 +7,8 @@ import com.ph.springbootinit.common.ResultUtils;
 import com.ph.springbootinit.constant.FileConstant;
 import com.ph.springbootinit.exception.BusinessException;
 import com.ph.springbootinit.manager.CosManager;
-import com.ph.springbootinit.model.dto.file.UploadFileRequest;
-import com.ph.springbootinit.model.entity.User;
+import com.ph.springbootinit.model.ao.file.UploadFileAO;
+import com.ph.springbootinit.model.entity.UserPo;
 import com.ph.springbootinit.model.enums.FileUploadBizEnum;
 import com.ph.springbootinit.service.UserService;
 import java.io.File;
@@ -50,18 +50,18 @@ public class FileController {
      */
     @PostMapping("/upload")
     public BaseResponse<String> uploadFile(@RequestPart("file") MultipartFile multipartFile,
-            UploadFileRequest uploadFileRequest, HttpServletRequest request) {
-        String biz = uploadFileRequest.getBiz();
+            UploadFileAO uploadFileAO, HttpServletRequest request) {
+        String biz = uploadFileAO.getBiz();
         FileUploadBizEnum fileUploadBizEnum = FileUploadBizEnum.getEnumByValue(biz);
         if (fileUploadBizEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         validFile(multipartFile, fileUploadBizEnum);
-        User loginUser = userService.getLoginUser(request);
+        UserPo loginUserPo = userService.getLoginUser(request);
         // 文件目录：根据业务、用户来划分
         String uuid = RandomStringUtils.randomAlphanumeric(8);
         String filename = uuid + "-" + multipartFile.getOriginalFilename();
-        String filepath = String.format("/%s/%s/%s", fileUploadBizEnum.getValue(), loginUser.getId(), filename);
+        String filepath = String.format("/%s/%s/%s", fileUploadBizEnum.getValue(), loginUserPo.getId(), filename);
         File file = null;
         try {
             // 上传文件

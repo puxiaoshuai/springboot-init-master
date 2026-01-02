@@ -1,16 +1,16 @@
-package com.ph.springbootinit.model.dto.user;
+package com.ph.springbootinit.model.ao.user;
 
 import java.io.Serializable;
 import lombok.Data;
 
 /**
- * 用户创建请求
+ * 用户创建应用对象
  *
-
-
  */
 @Data
-public class UserAddRequest implements Serializable {
+public class UserAddAO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 用户昵称
@@ -31,6 +31,4 @@ public class UserAddRequest implements Serializable {
      * 用户角色: user, admin
      */
     private String userRole;
-
-    private static final long serialVersionUID = 1L;
 }

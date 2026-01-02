@@ -32,7 +32,7 @@ Common patterns:
 
 ### Files
 - **Components/Modules**: [e.g., `PascalCase`, `snake_case`, `kebab-case`]
-- **Services/Handlers**: [e.g., `UserService`, `user_service`, `user-service`]
+- **Services/Handlers**: [e.g., `UserService`, `user_service`, `userPo-service`]
 - **Utilities/Helpers**: [e.g., `dateUtils`, `date_utils`, `date-utils`]
 - **Tests**: [e.g., `[filename]_test`, `[filename].test`, `[filename]Test`]
 
