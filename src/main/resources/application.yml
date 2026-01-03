@@ -76,14 +76,13 @@ wx:
   open:
     appId: xxx
     appSecret: xxx
-# 对象存储
-# todo 需替换配置
-cos:
-  client:
-    accessKey: xxx
-    secretKey: xxx
-    region: xxx
-    bucket: xxx
+# 七牛云配置
+oss:
+  qiniu:
+    domain: http://xinqu.puxiaoshuai.top
+    accessKey: Yx1N9U7GIakvGb99WaRmSJrXZiOstlJEIqnwyXjP
+    secretKey: 8CT3x2But9ypV53CadGwb6XJswDux8fyZ9JXZBDw
+    bucketName: scxinqu
 # 接口文档配置
 knife4j:
   enable: true
