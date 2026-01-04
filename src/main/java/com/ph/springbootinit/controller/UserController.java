@@ -18,6 +18,8 @@ import com.ph.springbootinit.model.ao.user.UserUpdateMyAO;
 import com.ph.springbootinit.model.entity.UserPo;
 import com.ph.springbootinit.model.vo.LoginUserVO;
 import com.ph.springbootinit.model.vo.UserVO;
+import com.ph.springbootinit.converter.UserConverter;
+import com.ph.springbootinit.mapper.UserMapper;
 import com.ph.springbootinit.service.UserService;
 
 import java.util.List;
@@ -52,6 +54,12 @@ public class UserController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private UserMapper userMapper;
+
+    @Resource
+    private UserConverter userConverter;
 
     @Resource
     private WxOpenConfig wxOpenConfig;
@@ -167,15 +175,29 @@ public class UserController {
         if (userAddAO == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        UserPo userPo = new UserPo();
-        BeanUtils.copyProperties(userAddAO, userPo);
-        // 默认密码 12345678
-        String defaultPassword = "12345678";
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + defaultPassword).getBytes());
-        userPo.setUserPassword(encryptPassword);
-        boolean result = userService.save(userPo);
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        return ResultUtils.success(userPo.getId());
+        String userAccount = userAddAO.getUserAccount();
+        // 校验账号不能为空
+        if (StringUtils.isBlank(userAccount)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号不能为空");
+        }
+        // 账户不能重复
+        synchronized (userAccount.intern()) {
+            UserQueryAO queryAO = new UserQueryAO();
+            queryAO.setUserAccount(userAccount);
+            long count = userMapper.selectCount(queryAO);
+            if (count > 0) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号已存在");
+            }
+            UserPo userPo = new UserPo();
+            BeanUtils.copyProperties(userAddAO, userPo);
+            // 默认密码 12345678
+            String defaultPassword = "12345678";
+            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + defaultPassword).getBytes());
+            userPo.setUserPassword(encryptPassword);
+            boolean result = userService.save(userPo);
+            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+            return ResultUtils.success(userPo.getId());
+        }
     }
 
     /**
@@ -257,10 +279,11 @@ public class UserController {
      */
     @PostMapping("/list")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<List<UserPo>> listUser(@RequestBody UserQueryAO userQueryAO,
+    public BaseResponse<List<UserVO>> listUser(@RequestBody UserQueryAO userQueryAO,
                                                HttpServletRequest request) {
         List<UserPo> userPoList = userService.list(userQueryAO);
-        return ResultUtils.success(userPoList);
+        List<UserVO> userVOList = userConverter.toVoList(userPoList);
+        return ResultUtils.success(userVOList);
     }
 
     /**

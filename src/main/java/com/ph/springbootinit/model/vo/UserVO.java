@@ -1,7 +1,8 @@
 package com.ph.springbootinit.model.vo;
 
+import com.ph.springbootinit.serializer.LongSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
 /**
@@ -17,6 +18,8 @@ public class UserVO implements Serializable {
      * id
      */
     private Long id;
+
+    private String userAccount;
 
     /**
      * 用户昵称
@@ -41,7 +44,11 @@ public class UserVO implements Serializable {
     /**
      * 创建时间
      */
-    private Date createTime;
+    @JsonSerialize(using = LongSerializer.class)
+    private Long createTime;
+
+    @JsonSerialize(using = LongSerializer.class)
+    private Long updateTime;
 
     private static final long serialVersionUID = 1L;
 }

@@ -32,7 +32,7 @@
             userAvatar, userProfile, userRole, createTime, updateTime, isDelete
         ) VALUES (
             #{userAccount}, #{userPassword}, #{unionId}, #{mpOpenId}, #{userName},
-            #{userAvatar}, #{userProfile}, #{userRole}, #{createTime}, #{updateTime}, #{isDelete}
+            #{userAvatar}, #{userProfile}, #{userRole}, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), #{isDelete}
         )
     </insert>
 
@@ -129,9 +129,7 @@
             <if test="userRole != null and userRole != ''">
                 userRole = #{userRole},
             </if>
-            <if test="updateTime != null">
-                updateTime = #{updateTime},
-            </if>
+            updateTime = UNIX_TIMESTAMP(),
         </set>
         WHERE id = #{id} AND isDelete = 0
     </update>
