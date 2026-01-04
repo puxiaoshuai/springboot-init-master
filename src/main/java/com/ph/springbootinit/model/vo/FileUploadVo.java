@@ -7,6 +7,8 @@ import lombok.Data;
  * 文件上传返回信息VO类
  *
  */
+import java.util.Date;
+
 @Data
 public class FileUploadVo implements Serializable {
 
@@ -35,5 +37,15 @@ public class FileUploadVo implements Serializable {
     /**
      * 上传时间
      */
-    private String uploadTime;
+    private Date uploadTime;
+
+    public FileUploadVo(String fileUrl, String fileName, Long fileSize, String fileType) {
+        this.fileUrl = fileUrl;
+        this.fileName = fileName;
+        this.fileSize = fileSize;
+        this.fileType = fileType;
+        this.uploadTime = new Date();
+    }
+
+
 }

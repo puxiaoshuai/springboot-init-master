@@ -1,177 +1,140 @@
 package com.ph.springbootinit.service;
 
-import com.google.gson.Gson;
+import com.ph.springbootinit.common.ErrorCode;
 import com.ph.springbootinit.config.QiniuProperties;
+import com.ph.springbootinit.exception.BusinessException;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
-import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
-import java.io.InputStream;
-import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.UUID;
+
 /**
  * 七牛云文件上传服务
- *
  */
-@Service
 @Slf4j
+@Service
 public class QiniuService {
 
-    @Resource
+    @Autowired
     private QiniuProperties qiniuProperties;
 
+
     /**
-     * 上传文件
+     * 上传文件到七牛云
      *
-     * @param file 文件
+     * @param file 要上传的文件
      * @return 文件访问URL
      */
     public String uploadFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new RuntimeException("文件不能为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件不能为空");
+        }
+
+        // 检查配置是否正确
+        if (qiniuProperties.getAccessKey() == null || qiniuProperties.getSecretKey() == null) {
+            log.error("七牛云配置错误: AccessKey 或 SecretKey 为空");
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "七牛云配置错误");
         }
 
         try {
-            InputStream inputStream = file.getInputStream();
+            // 获取文件字节数组
+            byte[] fileData = file.getBytes();
+            // 生成唯一文件名
             String originalFilename = file.getOriginalFilename();
-            String fileExtension = getFileExtension(originalFilename);
-            String fileName = generateFileName(fileExtension);
 
-            return uploadByStream(inputStream, fileName);
-        } catch (Exception e) {
-            log.error("文件上传失败", e);
-            throw new RuntimeException("文件上传失败: " + e.getMessage());
+            String fileExtension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String fileName = UUID.randomUUID().toString().replace("-", "") + fileExtension;
+
+            // 构造一个带指定 Region 对象的配置类
+            Configuration cfg = new Configuration(Region.autoRegion());
+
+            // 创建上传管理器
+            UploadManager uploadManager = new UploadManager(cfg);
+
+            // 生成上传凭证
+            Auth auth = Auth.create(qiniuProperties.getAccessKey(), qiniuProperties.getSecretKey());
+            String upToken = auth.uploadToken(qiniuProperties.getBucketName());
+            // 上传文件
+            Response response = uploadManager.put(fileData, fileName, upToken);
+
+            if (response.isOK()) {
+                String fileUrl = qiniuProperties.getDomain() + "/" + fileName;
+                return fileUrl;
+            } else {
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "七牛云相应失败");
+            }
+
+        } catch (QiniuException e) {
+            log.error("七牛云上传异常", e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "文件上传失败: " + e.getMessage());
+        } catch (IOException e) {
+            log.error("文件读取异常", e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "文件读取失败");
         }
     }
 
     /**
-     * 上传字节数组
+     * 上传字节数组到七牛云
      *
-     * @param bytes 字节数组
+     * @param fileData 文件字节数组
      * @param fileName 文件名
      * @return 文件访问URL
      */
-    public String uploadBytes(byte[] bytes, String fileName) {
-        if (bytes == null || bytes.length == 0) {
-            throw new RuntimeException("文件内容不能为空");
+    public String uploadFile(byte[] fileData, String fileName) {
+        if (fileData == null || fileData.length == 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件数据不能为空");
         }
 
         try {
-            return uploadByBytes(bytes, fileName);
-        } catch (Exception e) {
-            log.error("文件上传失败", e);
-            throw new RuntimeException("文件上传失败: " + e.getMessage());
+            // 构造一个带指定 Region 对象的配置类
+            Configuration cfg = new Configuration(Region.autoRegion());
+
+            // 创建上传管理器
+            UploadManager uploadManager = new UploadManager(cfg);
+
+            // 生成上传凭证
+            Auth auth = Auth.create(qiniuProperties.getAccessKey(), qiniuProperties.getSecretKey());
+            String upToken = auth.uploadToken(qiniuProperties.getBucketName());
+
+            log.info("开始上传文件: {}", fileName);
+
+            // 上传文件
+            Response response = uploadManager.put(fileData, fileName, upToken);
+
+            if (response.isOK()) {
+                String fileUrl = qiniuProperties.getDomain() + "/" + fileName;
+                log.info("文件上传成功: {}", fileUrl);
+                return fileUrl;
+            } else {
+                log.error("文件上传失败: {}", response.error);
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "文件上传失败");
+            }
+
+        } catch (QiniuException e) {
+            log.error("七牛云上传异常", e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "文件上传失败: " + e.getMessage());
         }
     }
 
     /**
-     * 获取上传凭证
+     * 获取上传凭证（用于前端直传）
      *
      * @return 上传凭证
      */
     public String getUploadToken() {
-        return Auth.create(qiniuProperties.getAccessKey(), qiniuProperties.getSecretKey())
-                .uploadToken(qiniuProperties.getBucketName());
-    }
-
-    /**
-     * 通过流上传文件
-     *
-     * @param inputStream 输入流
-     * @param fileName 文件名
-     * @return 文件访问URL
-     */
-    private String uploadByStream(InputStream inputStream, String fileName) {
-        try {
-            // 构造配置类
-            Configuration cfg = new Configuration(Region.autoRegion());
-            // 创建上传管理器
-            UploadManager uploadManager = new UploadManager(cfg);
-
-            // 获取上传凭证
-            String upToken = getUploadToken();
-
-            // 上传文件
-            Response response = uploadManager.put(inputStream, fileName, upToken, null, null);
-            // 解析上传成功的结果
-            DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
-
-            return getFileUrl(putRet.key);
-        } catch (QiniuException e) {
-            log.error("七牛云上传失败", e);
-            throw new RuntimeException("七牛云上传失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 通过字节数组上传文件
-     *
-     * @param bytes 字节数组
-     * @param fileName 文件名
-     * @return 文件访问URL
-     */
-    private String uploadByBytes(byte[] bytes, String fileName) {
-        try {
-            // 构造配置类
-            Configuration cfg = new Configuration(Region.autoRegion());
-            // 创建上传管理器
-            UploadManager uploadManager = new UploadManager(cfg);
-
-            // 获取上传凭证
-            String upToken = getUploadToken();
-
-            // 上传文件
-            Response response = uploadManager.put(bytes, fileName, upToken);
-            // 解析上传成功的结果
-            DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
-
-            return getFileUrl(putRet.key);
-        } catch (QiniuException e) {
-            log.error("七牛云上传失败", e);
-            throw new RuntimeException("七牛云上传失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 获取文件访问URL
-     *
-     * @param key 文件key
-     * @return 文件访问URL
-     */
-    private String getFileUrl(String key) {
-        return qiniuProperties.getDomain() + "/" + key;
-    }
-
-    /**
-     * 生成唯一文件名
-     *
-     * @param extension 文件扩展名
-     * @return 唯一文件名
-     */
-    private String generateFileName(String extension) {
-        return System.currentTimeMillis() + "_" + java.util.UUID.randomUUID().toString().substring(0, 8) + extension;
-    }
-
-    /**
-     * 获取文件扩展名
-     *
-     * @param filename 文件名
-     * @return 文件扩展名
-     */
-    private String getFileExtension(String filename) {
-        if (filename == null || filename.isEmpty()) {
-            return "";
-        }
-        int lastDotIndex = filename.lastIndexOf(".");
-        if (lastDotIndex == -1) {
-            return "";
-        }
-        return filename.substring(lastDotIndex);
+        Auth auth = Auth.create(qiniuProperties.getAccessKey(), qiniuProperties.getSecretKey());
+        return auth.uploadToken(qiniuProperties.getBucketName());
     }
 }

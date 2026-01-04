@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class QiniuProperties {
 
     /**
-     * 域名
+     * 七牛云域名
      */
     private String domain;
 
@@ -33,3 +33,4 @@ public class QiniuProperties {
      */
     private String bucketName;
 }
+

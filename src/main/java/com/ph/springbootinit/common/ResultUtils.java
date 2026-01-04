@@ -18,6 +18,9 @@ public class ResultUtils {
     public static <T> BaseResponse<T> success(T data) {
         return new BaseResponse<>(0, data, "ok");
     }
+    public static <T> BaseResponse<T> success(T data,String message) {
+        return new BaseResponse<>(0, data, message);
+    }
 
     /**
      * 失败
@@ -48,5 +51,9 @@ public class ResultUtils {
      */
     public static BaseResponse error(ErrorCode errorCode, String message) {
         return new BaseResponse(errorCode.getCode(), null, message);
+    }
+
+    public static <T> BaseResponse<T> error(T data,String message) {
+        return new BaseResponse<>(0, data, message);
     }
 }
